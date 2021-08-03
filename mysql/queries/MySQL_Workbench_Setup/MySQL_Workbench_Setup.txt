@@ -1,0 +1,8 @@
+SET SQL_SAFE_UPDATES = 0;
+UPDATE clients SET clients.first_name = 'Bob' WHERE clients.last_name = 'Choi';
+INSERT INTO clients (first_name, last_name, email, joined_datetime) VALUES ('Harold', 'Khumar', 'HK@mail.com', NOW());
+DELETE FROM leads WHERE leads.last_name = 'Supsupin';
+SELECT clients.first_name, clients.last_name, SUM(billing.amount)
+FROM clients
+JOIN billing ON clients.id = billing.clients_id
+GROUP BY clients_id;

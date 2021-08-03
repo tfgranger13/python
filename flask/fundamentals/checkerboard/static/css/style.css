@@ -1,0 +1,23 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.tile {
+    height: 50px;
+    width: 50px;
+    border: 1px black solid;
+}
+
+.rows {
+    display: flex;
+}
+
+/* .dark {
+    background-color: {{color_d}};
+}
+
+.lite {
+    background-color: {{color_l}};
+} */

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add A Recipe</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="/">Recipes</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- nav-links -->
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/dashboard">Dashboard</a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="/recipes/new">Add A Recipe <span class="sr-only">(current)</span></a>
+                </li>
+            </ul>
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">
+                        {%if not 'user_id' in session:%}
+                        Not logged in
+                        {%endif%}
+                        {%if 'user_id' in session:%}
+                        Logged in as: {{session['user_name']}}
+                        {%endif%}
+                    </a>
+                </li>
+                <form class="form-inline my-2 my-lg-0" action="/log_out">
+                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Log Out</button>
+                </form>
+            </ul>
+        </div>
+    </nav>
+
+    <main>
+        <div class="container">
+            <h1>Edit A Recipe!</h1>
+
+            {% with errors = get_flashed_messages(category_filter=["logging"]) %}
+                    {% if errors %}
+                    <div class="alert-message block-message error">
+                        <ul>
+                            {%- for msg in errors %}
+                            <li>{{ msg }}</li>
+                            {% endfor -%}
+                        </ul>
+                    </div>
+                    {% endif %}
+                    {% endwith %}
+
+            <p>Please submit the information for a new recipe here:</p>
+
+            <form action="/recipes/submit_edit/{{recipe_info.id}}" method="POST">
+
+                <!-- Name -->
+                <div class="form-group">
+                    <label for="edit_recipe_name">Name:</label>
+                    {% with errors = get_flashed_messages(category_filter=["name"]) %}
+                    {% if errors %}
+                    <div class="alert-message block-message error">
+                        <ul>
+                            {%- for msg in errors %}
+                            <li>{{ msg }}</li>
+                            {% endfor -%}
+                        </ul>
+                    </div>
+                    {% endif %}
+                    {% endwith %}
+                    <input type="text" class="form-control" id="edit_recipe_name" aria-describedby="emailHelp"
+                        name="edit_recipe_name" value="{{recipe_info.name}}">
+                    <small id="edit_recipe_name_Help" class="form-text text-muted">Must be between three and 45
+                        characters, letters only.</small>
+                </div>
+
+                <!-- Description -->
+                <div class="form-group">
+                    <label for="edit_recipe_description">Description:</label>
+                    {% with errors = get_flashed_messages(category_filter=["description"]) %}
+                    {% if errors %}
+                    <div class="alert-message block-message error">
+                        <ul>
+                            {%- for msg in errors %}
+                            <li>{{ msg }}</li>
+                            {% endfor -%}
+                        </ul>
+                    </div>
+                    {% endif %}
+                    {% endwith %}
+                    <textarea class="form-control" id="edit_recipe_description" name="edit_recipe_description"
+                        rows="5">{{recipe_info.description}}</textarea>
+                    <small id="emailHelp" class="form-text text-muted">Must not be left blank.</small>
+                </div>
+
+                <!-- Instructions -->
+                <div class="form-group">
+                    <label for="edit_recipe_instructions">Instructions:</label>
+                    {% with errors = get_flashed_messages(category_filter=["instructions"]) %}
+                    {% if errors %}
+                    <div class="alert-message block-message error">
+                        <ul>
+                            {%- for msg in errors %}
+                            <li>{{ msg }}</li>
+                            {% endfor -%}
+                        </ul>
+                    </div>
+                    {% endif %}
+                    {% endwith %}
+                    <textarea class="form-control" id="edit_recipe_instructions" name="edit_recipe_instructions"
+                        rows="5">{{recipe_info.instructions}}</textarea>
+                    <small id="emailHelp" class="form-text text-muted">Must not be left blank.</small>
+                </div>
+
+                <!-- Date Made On -->
+                <div class="form-group">
+                    <label for="edit_made_at">Date made on:</label>
+                    {% with errors = get_flashed_messages(category_filter=["made_at"]) %}
+                    {% if errors %}
+                    <div class="alert-message block-message error">
+                        <ul>
+                            {%- for msg in errors %}
+                            <li>{{ msg }}</li>
+                            {% endfor -%}
+                        </ul>
+                    </div>
+                    {% endif %}
+                    {% endwith %}
+                    <input type="date" class="form-control" id="edit_made_at" name="edit_recipe_made_at" value="{{recipe_info.made_at}}">
+                    <small id="emailHelp" class="form-text text-muted">Must select a valid date.</small>
+                </div>
+
+                <!-- Under_30 -->
+                <div>
+                    <label for="under_30" class="radio-inline control-label">Ready in under 30 minutes:</label>
+                    {% if recipe_info.under_30 == 1%}
+                    <div class="form-check form-check-inline">
+                        {% with errors = get_flashed_messages(category_filter=["under_30"]) %}
+                        {% if errors %}
+                        <div class="alert-message block-message error">
+                            <ul>
+                                {%- for msg in errors %}
+                                <li>{{ msg }}</li>
+                                {% endfor -%}
+                            </ul>
+                        </div>
+                        {% endif %}
+                        {% endwith %}
+                        <input class="form-check-input" type="radio" name="edit_recipe_under_30" id="edit_recipe_under_30_yes" value="1" checked>
+                        <label class="form-check-label" for="under_30_yes">Yes</label>
+                    </div>
+                    <div class="form-check  form-check-inline">
+                        <input class="form-check-input" type="radio" name="edit_recipe_under_30" id="edit_recipe_under_30_no" value="0">
+                        <label class="form-check-label" for="edit_under_30_no">No</label>
+                    </div>
+                    {%endif%}
+
+                    {% if recipe_info.under_30 == 0 %}
+                    <div class="form-check form-check-inline">
+                        {% with errors = get_flashed_messages(category_filter=["under_30"]) %}
+                        {% if errors %}
+                        <div class="alert-message block-message error">
+                            <ul>
+                                {%- for msg in errors %}
+                                <li>{{ msg }}</li>
+                                {% endfor -%}
+                            </ul>
+                        </div>
+                        {% endif %}
+                        {% endwith %}
+                        <input class="form-check-input" type="radio" name="edit_recipe_under_30" id="edit_recipe_under_30_yes" value="1">
+                        <label class="form-check-label" for="under_30_yes">Yes</label>
+                    </div>
+                    <div class="form-check  form-check-inline">
+                        <input class="form-check-input" type="radio" name="edit_recipe_under_30" id="edit_recipe_under_30_no" value="0" checked>
+                        <label class="form-check-label" for="edit_under_30_no">No</label>
+                    </div>
+                    {%endif%}
+
+                    <small id="emailHelp" class="form-text text-muted">Must select one option.</small><br>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Submit</button><br><br>
+
+            </form>
+        </div>
+    </main>
+</body>
+
+</html>

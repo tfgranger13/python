@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Counter</title>
+</head>
+<body>
+    <nav></nav>
+    <main>
+        <div class="container">
+            <h1>Welcome!</h1>
+            <p>You've viewed this page {{session['counter']}} times.</p>
+            <!-- form to add count on refresh -->
+            <form action="/add_to_counter" method="POST"></form>
+            <form action="/add_to_counter" method='POST'>
+                <button type="submit">Add an extra view</button>
+            </form>
+            <form action="/destroy_session">
+                <button type="submit">Reset views</button>
+            </form>
+            <form action="/add_value_to_counter" method="POST">
+                <label for="value">How many views would you like to add?</label>
+                <input type="text" name="value" id="">
+                <button type="submit">Add views</button>
+            </form>
+            <p>(but you only have {{session['real_views']}} actual views)</p>
+        </div>
+    </main>
+</body>
+</html>

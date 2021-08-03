@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Play Multiples</title>
+    <style>
+
+        nav {
+            margin: 0 auto;
+            align-items: center;
+        }
+
+        .container {
+            margin: 0 auto;
+            width: 70%;
+            display: flex;
+            gap: 2em;
+        }
+
+        #boxes {
+            border: 3px black solid;
+            width: 100px;
+            height: 100px;
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+        <p>There are {{multiples}} {{colors}} boxes</p>
+    </nav>
+    <main>
+        <div class="container">
+            {% for x in range(multiples) %}
+                <div id="boxes" style="background-color: {{colors}};"></div>
+            {% endfor %}
+        </div>
+    </main>
+
+</body>
+
+</html>

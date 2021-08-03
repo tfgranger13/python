@@ -1,0 +1,73 @@
+# Query: Create 5 different authors: Jane Austen, Emily Dickinson, Fyodor Dostoevsky, William Shakespeare, Lau Tzu
+INSERT INTO authors (name) VALUES('Jane Austen');
+INSERT INTO authors (name) VALUES('Emily Dickinson');
+INSERT INTO authors (name) VALUES('Fyodor Dostoevsky');
+INSERT INTO authors (name) VALUES('William Shakespeare');
+INSERT INTO authors (name) VALUES('Lau Tzu');
+
+# Query: Create 5 books with the following names: C Sharp, Java, Python, PHP, Ruby
+INSERT INTO books (title, num_of_pages) VALUES('C Sharp', 234);
+INSERT INTO books (title, num_of_pages) VALUES('Java', 1234);
+INSERT INTO books (title, num_of_pages) VALUES('Python', 12);
+INSERT INTO books (title, num_of_pages) VALUES('PHP', 4321);
+INSERT INTO books (title, num_of_pages) VALUES('Ruby', 1);
+
+# Query: Change the name of the C Sharp book to C#
+SET SQL_SAFE_UPDATES = 0;
+UPDATE books SET title = 'C#' WHERE title = 'C Sharp';
+
+# Query: Change the first name of the 4th author to Bill
+UPDATE authors SET name = CONCAT('Bill ', substring_index(name ,' ', -1)) WHERE id = (SELECT id FROM (SELECT id FROM authors) AS id ORDER BY id LIMIT 3, 1);
+
+# Query: Have the first author favorite the first 2 books
+INSERT INTO favorites (author_id, book_id) VALUE ((SELECT id FROM authors WHERE id = (SELECT id FROM authors ORDER BY id LIMIT 1)), (SELECT id FROM books WHERE id = (SELECT id FROM books ORDER BY id LIMIT 1)));
+INSERT INTO favorites (author_id, book_id) VALUE ((SELECT id FROM authors WHERE id = (SELECT id FROM authors ORDER BY id LIMIT 1)), (SELECT id FROM books WHERE id = (SELECT id FROM books ORDER BY id LIMIT 1, 1)));
+
+# Query: Have the second author favorite the first 3 books
+INSERT INTO favorites (author_id, book_id) VALUE ((SELECT id FROM authors WHERE id = (SELECT id FROM authors ORDER BY id LIMIT 1,1)), (SELECT id FROM books WHERE id = (SELECT id FROM books ORDER BY id LIMIT 1)));
+INSERT INTO favorites (author_id, book_id) VALUE ((SELECT id FROM authors WHERE id = (SELECT id FROM authors ORDER BY id LIMIT 1,1)), (SELECT id FROM books WHERE id = (SELECT id FROM books ORDER BY id LIMIT 1, 1)));
+INSERT INTO favorites (author_id, book_id) VALUE ((SELECT id FROM authors WHERE id = (SELECT id FROM authors ORDER BY id LIMIT 1,1)), (SELECT id FROM books WHERE id = (SELECT id FROM books ORDER BY id LIMIT 2, 1)));
+
+# Query: Have the third author favorite the first 4 books
+INSERT INTO favorites (author_id, book_id) VALUE ((SELECT id FROM authors WHERE id = (SELECT id FROM authors ORDER BY id LIMIT 2,1)), (SELECT id FROM books WHERE id = (SELECT id FROM books ORDER BY id LIMIT 1)));
+INSERT INTO favorites (author_id, book_id) VALUE ((SELECT id FROM authors WHERE id = (SELECT id FROM authors ORDER BY id LIMIT 2,1)), (SELECT id FROM books WHERE id = (SELECT id FROM books ORDER BY id LIMIT 1, 1)));
+INSERT INTO favorites (author_id, book_id) VALUE ((SELECT id FROM authors WHERE id = (SELECT id FROM authors ORDER BY id LIMIT 2,1)), (SELECT id FROM books WHERE id = (SELECT id FROM books ORDER BY id LIMIT 2, 1)));
+INSERT INTO favorites (author_id, book_id) VALUE ((SELECT id FROM authors WHERE id = (SELECT id FROM authors ORDER BY id LIMIT 2,1)), (SELECT id FROM books WHERE id = (SELECT id FROM books ORDER BY id LIMIT 3, 1)));
+
+# Query: Have the fourth author favorite all the books
+CREATE DEFINER=`root`@`localhost` PROCEDURE `ordinal_author_favorite_all_books`(
+	auth INT
+)
+BEGIN
+DECLARE counter INT;
+DECLARE auth_subtract INT;
+SET counter = 0;
+SET auth_subtract = auth -1;
+    WHILE counter < (SELECT COUNT(id) FROM books) DO
+	INSERT INTO favorites (author_id, book_id) VALUE ((SELECT id FROM authors WHERE id = (SELECT id FROM authors ORDER BY id LIMIT auth_subtract, 1)), (SELECT id FROM books WHERE id = (SELECT id FROM books ORDER BY id LIMIT counter, 1)));
+	SET counter = counter + 1;
+    END WHILE;
+END
+CALL ordinal_author_favorite_all_books(4);
+
+# Query: Retrieve all the authors who favorited the 3rd book
+SELECT authors.name FROM authors
+JOIN favorites ON authors.id = favorites.author_id
+WHERE book_id = (SELECT DISTINCT book_id FROM favorites ORDER BY book_id LIMIT 2,1);
+
+# Query: Remove the first author of the 3rd book's favorites
+SET SQL_SAFE_UPDATES = 0;
+DELETE FROM favorites WHERE book_id = (SELECT DISTINCT book_id FROM (SELECT book_id FROM favorites) AS fake_book_favorites ORDER BY book_id LIMIT 2,1) LIMIT 1;
+
+# Query: Add the 5th author as an other who favorited the 2nd book
+INSERT INTO favorites (author_id, book_id) VALUE ((SELECT id FROM authors WHERE id = (SELECT id FROM authors ORDER BY id LIMIT 4, 1)), (SELECT id FROM books WHERE id = (SELECT id FROM books ORDER BY id LIMIT 1, 1)));
+
+# Find all the books that the 3rd author favorited
+SELECT books.title FROM books
+JOIN favorites ON books.id = favorites.book_id
+WHERE author_id = (SELECT DISTINCT author_id FROM favorites ORDER BY author_id LIMIT 2,1);
+
+# Query: Find all the authors that favorited the 5th book
+SELECT authors.name FROM authors
+JOIN favorites ON authors.id = favorites.author_id
+WHERE book_id = (SELECT DISTINCT book_id FROM favorites ORDER BY book_id LIMIT 4,1);
